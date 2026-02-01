@@ -6,7 +6,7 @@
 bool replaceTab = false;
 bool decorateEnd = false;
 bool printLineNumber = false;
-bool isNewLine = false;
+bool isNewLine = true;
 
 // Global line number count
 int lineNumber = 1;
@@ -46,30 +46,33 @@ void printChar(char ch) {
   printf("%c", ch);
 }
 
+void setArgs(int *ac, char **av) {
+      if (checkArgs(ac, av, "-n", 1)) {
+        printLineNumber = true;
+      }
+
+      if (checkArgs(ac, av, "-e", 1)) {
+        decorateEnd = true;
+      }
+
+      if (checkArgs(ac, av, "-t", 1)) {
+        replaceTab = true;
+      }
+}
+
 int main(int argc, char **argv) {
 
+  setArgs(&argc, argv);
   FILE *fp;
 
   if (argc == 1) {
     char ch;
     while ((ch = fgetc(stdin)) != EOF) {
-      printf("%c", ch);
+      printChar(ch);
     }
 
   } else {
     if (argc > 1) {
-      if (checkArgs(&argc, argv, "-n", 1)) {
-        printLineNumber = true;
-      }
-
-      if (checkArgs(&argc, argv, "-e", 1)) {
-        decorateEnd = true;
-      }
-
-      if (checkArgs(&argc, argv, "-t", 1)) {
-        replaceTab = true;
-      }
-
       for (int i = 1; i < argc; i++) {
         if (checkArgs(&argc, argv, "--h", 0)) {
           const char *help =
@@ -86,7 +89,6 @@ int main(int argc, char **argv) {
           break;
         }
         else if ((strcmp(argv[i], "-")) == 0) {
-          isNewLine = true;
           char ch;
           while ((ch = fgetc(stdin)) != EOF) {
             printChar(ch);
