@@ -4,6 +4,7 @@
 int checkArgs(int *ac, char **argv, char *term, int removeTerm) {
   for (int i = 1; i < *ac; i++) {
     if ((strcmp(argv[i], term)) == 0) {
+      // Term exists, remove from args if needed.
       if (removeTerm == 1) {
         for (int j = i; j < *ac - 1; j++) {
           argv[j] = argv[j + 1];
@@ -18,6 +19,7 @@ int checkArgs(int *ac, char **argv, char *term, int removeTerm) {
 }
 
 int main(int argc, char **argv) {
+  int decorateEnd = 0;
   int printLineNumber=0;
   int lineNumber=1;
   FILE *fp;
@@ -33,6 +35,9 @@ int main(int argc, char **argv) {
       if (checkArgs(&argc, argv, "-n", 1) == 0) {
         printLineNumber=1;
       }
+      if (checkArgs(&argc, argv, "-e", 1) == 0) {
+        decorateEnd=1;
+      }
 
       for (int i = 1; i < argc; i++) {
         if (checkArgs(&argc, argv, "--h", 0) == 0) {
@@ -42,7 +47,8 @@ int main(int argc, char **argv) {
               "ConCATenate FILE(s) to the standard output.\n"
               "\nWith no FILE, or when file is -, read standard input.\n"
               "\nOptions:\n"
-              "\t-n: Number each line\n";
+              "\t-n: Number each line\n"
+              "\t-e: Append end of each line with $";
 
           printf("%s\n", help);
           break;
@@ -55,12 +61,14 @@ int main(int argc, char **argv) {
               printf("%d ", lineNumber);
               isNewLine = 0;
             }
-            printf("%c", ch);
             if (ch == '\n') {
-
+              if (decorateEnd == 1) {
+                printf("$");
+              }
               lineNumber += 1;
              isNewLine=1;
             }
+            printf("%c", ch);
           }
         } else {
 	  //      printf("Trying to open: %s\n", argv[i]);
@@ -76,11 +84,14 @@ int main(int argc, char **argv) {
               printf("%d ", lineNumber);
               isNewLine=0;
             }
-            printf("%c", ch);
             if (ch == '\n') {
+              if (decorateEnd == 1) {
+                printf("$");
+              }
               lineNumber += 1;
               isNewLine = 1;
             }
+            printf("%c", ch);
 	  }
 	  fclose(fp);
 	  //      printf("\n");
